@@ -1,0 +1,1 @@
+There is a png file of a base neural network graph in the repo. Feel free to fork in projects to connect the nodes in different and more complex ways while trying to keep the triangles embedded. Cheers!

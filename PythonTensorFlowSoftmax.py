@@ -1,17 +1,24 @@
 #!/usr/bin/env python3
 """
-PythonTensorFlowSoftmax.py
+PythonTensorFlow2ClassClassification.py
 
-Architecture: 2 → 6 → 2 → 2 → 8 → 2 → 2 → 6 → 2
-Output: 2-class softmax (mutually exclusive classification)
+Architecture:
+2 → 6 → 2 → 2 → 8 → 2 → 2 → 6 → 2
+
+Task:
+2-class classification (mutually exclusive)
+
+Output:
+- Softmax over 2 classes
 
 Target y:
-  shape: (N,)
-  dtype: int32 / int64
-  values: 0 or 1
-  NOTE: this uses SparseCategoricalCrossentropy so targets are NOT one-hot.
+- shape: (N,)
+- dtype: int32 / int64
+- values: {0, 1}
+- NOTE: targets are NOT one-hot encoded
 
-Loss: SparseCategoricalCrossentropy
+Loss:
+- SparseCategoricalCrossentropy
 """
 
 import numpy as np
@@ -29,13 +36,20 @@ def build_model(lr: float = 1e-3) -> tf.keras.Model:
     x = tf.keras.layers.Dense(2, activation="relu", name="dense_2_2_b")(x)
     x = tf.keras.layers.Dense(6, activation="relu", name="dense_2_6_b")(x)
 
-    outputs = tf.keras.layers.Dense(2, activation="softmax", name="y")(x)
+    outputs = tf.keras.layers.Dense(
+        2, activation="softmax", name="y"
+    )(x)
 
-    model = tf.keras.Model(inputs=inputs, outputs=outputs, name="YoungNet_softmax2")
+    model = tf.keras.Model(
+        inputs=inputs,
+        outputs=outputs,
+        name="YoungNet_2ClassClassification",
+    )
+
     model.compile(
         optimizer=tf.keras.optimizers.Adam(learning_rate=lr),
         loss=tf.keras.losses.SparseCategoricalCrossentropy(),
-        metrics=[tf.keras.metrics.SparseCategoricalAccuracy(name="acc")],
+        metrics=[tf.keras.metrics.SparseCategoricalAccuracy(name="accuracy")],
     )
     return model
 
@@ -54,11 +68,23 @@ def main():
     model.summary()
 
     x, y = make_dummy_data()
-    model.fit(x, y, epochs=5, batch_size=64, validation_split=0.2)
+    model.fit(
+        x,
+        y,
+        epochs=5,
+        batch_size=64,
+        validation_split=0.2,
+    )
 
-    x_test = np.array([[0.1, -0.2], [1.0, 0.5]], dtype=np.float32)
+    x_test = np.array(
+        [[0.1, -0.2],
+         [1.0,  0.5]],
+        dtype=np.float32,
+    )
+
+    probs = model.predict(x_test)
     print("\nClass probabilities:")
-    print(model.predict(x_test))
+    print(probs)
 
 
 if __name__ == "__main__":
